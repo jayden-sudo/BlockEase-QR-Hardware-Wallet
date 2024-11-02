@@ -20,7 +20,7 @@
  *  STATIC VARIABLES
  **********************/
 static alloc_utils_memory_struct *alloc_utils_memory_struct_pointer;
-static Wallet *wallet;
+static Wallet wallet;
 static qrcode_protocol_bc_ur_data_t *qrcode_protocol_bc_ur_data;
 static lv_obj_t *event_target = NULL;
 static ui_master_page_t *master_page = NULL;
@@ -37,7 +37,7 @@ static char *verify_pin(char *pin_str);
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-void ui_decoder_init(Wallet *_wallet, qrcode_protocol_bc_ur_data_t *_qrcode_protocol_bc_ur_data, lv_obj_t *event_target);
+void ui_decoder_init(Wallet _wallet, qrcode_protocol_bc_ur_data_t *_qrcode_protocol_bc_ur_data, lv_obj_t *event_target);
 void ui_decoder_destroy(void);
 
 /**********************
@@ -88,7 +88,7 @@ static char *verify_pin(char *pin_str)
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void ui_decoder_init(Wallet *_wallet, qrcode_protocol_bc_ur_data_t *_qrcode_protocol_bc_ur_data, lv_obj_t *_event_target)
+void ui_decoder_init(Wallet _wallet, qrcode_protocol_bc_ur_data_t *_qrcode_protocol_bc_ur_data, lv_obj_t *_event_target)
 {
     ui_init_events();
     event_target = _event_target;

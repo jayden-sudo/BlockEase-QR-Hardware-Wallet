@@ -1,0 +1,38 @@
+name: "👨‍💻 Developer Experience Improvement Suggestion"
+description: "Submit suggestions for improving developer experience, such as naming conventions or tool usage."
+title: "👨‍💻 [DE-Improvement]"
+labels: ["developer-experience"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Description
+        Please provide a detailed description of your suggested improvement.
+
+  - type: input
+    id: suggestion-title
+    attributes:
+      label: "Suggestion Title"
+      placeholder: "e.g., Suggested naming convention"
+
+  - type: textarea
+    id: suggestion-details
+    attributes:
+      label: "Suggestion Details"
+      placeholder: "Please elaborate on your suggestion, including background information and rationale."
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: "Impact of this suggestion on other developers"
+      options:
+        - Low
+        - Medium
+        - High
+        - Critical
+
+  - type: textarea
+    id: additional-comments
+    attributes:
+      label: "Additional Comments"
+      placeholder: "Do you have any other thoughts?"

@@ -54,9 +54,9 @@ typedef struct __attribute__((aligned(4))) _ctrl_home_network_data_t
     /* wallet address */
     char address[50];
     /* main wallet */
-    Wallet *wallet_main;
+    Wallet wallet_main;
     /* current wallet */
-    Wallet *wallet_current;
+    Wallet wallet_current;
     /* compatible wallet group */
     ctrl_home_compatible_wallet_group_t *compatible_wallet_group;
     /* next network */

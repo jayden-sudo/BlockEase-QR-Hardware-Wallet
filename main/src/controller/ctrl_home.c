@@ -37,7 +37,7 @@ LV_IMG_DECLARE(wallet_rabby)
  *  STATIC VARIABLES
  **********************/
 static const char *TAG = "ctrl_home";
-static Wallet *wallet = NULL;
+static Wallet wallet = 0;
 static ctrl_home_network_data_t *network_data = NULL;
 static bool scan_task_status_request = false;
 static bool scan_task_status = false;
@@ -239,7 +239,7 @@ static void qrScannerTask(void *parameters)
                 esp_code_scanner_symbol_t result = esp_code_scanner_result(esp_scn);
                 if (result.data != NULL && strlen(result.data) > 0)
                 {
-                    ESP_LOGI(TAG, "scan result:%s", result.data);
+                    // ESP_LOGI(TAG, "scan result:%s", result.data);
                     // Decode UR
                     qrcode_protocol_bc_ur_receive(qrcode_protocol_bc_ur_data, result.data);
                     if (qrcode_protocol_bc_ur_is_success(qrcode_protocol_bc_ur_data))
@@ -412,7 +412,7 @@ ctrl_home_network_data_t *ctrl_home_list_networks(void)
                 network_data_temp->type = CTRL_HOME_NETWORK_TYPE_ETH;
                 network_data_temp->icon = &logo_ethereum;
                 strcpy(network_data_temp->name, "Ethereum");
-                Wallet *_wallet = wallet_derive_eth(wallet, 0);
+                Wallet _wallet = wallet_derive_eth(wallet, 0);
                 char walletAddress[43];
                 wallet_get_eth_address(_wallet, walletAddress);
                 strcpy(network_data_temp->address, walletAddress);
@@ -473,7 +473,7 @@ ctrl_home_network_data_t *ctrl_home_list_networks(void)
                 network_data_temp->type = CTRL_HOME_NETWORK_TYPE_ETH;
                 network_data_temp->icon = &logo_bitcoin;
                 strcpy(network_data_temp->name, "Bitcoin segwit");
-                Wallet *_wallet = wallet_derive_btc(wallet, 0);
+                Wallet _wallet = wallet_derive_btc(wallet, 0);
                 char walletAddress[43];
                 wallet_get_btc_address_segwit(_wallet, walletAddress);
                 strcpy(network_data_temp->address, walletAddress);
@@ -493,7 +493,7 @@ ctrl_home_network_data_t *ctrl_home_list_networks(void)
                 network_data_temp->type = CTRL_HOME_NETWORK_TYPE_ETH;
                 network_data_temp->icon = &logo_bitcoin;
                 strcpy(network_data_temp->name, "Bitcoin legacy");
-                Wallet *_wallet = wallet_derive_btc(wallet, 0);
+                Wallet _wallet = wallet_derive_btc(wallet, 0);
                 char walletAddress[43];
                 wallet_get_btc_address_legacy(_wallet, walletAddress);
                 strcpy(network_data_temp->address, walletAddress);

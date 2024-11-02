@@ -9,6 +9,8 @@
 /*********************
  *      DEFINES
  *********************/
+#define LOG_STACK_USAGE 1
+
 #define APP_VERSION "0.0.1"
 
 /* For verification of the firmware's hash, use a static string. */

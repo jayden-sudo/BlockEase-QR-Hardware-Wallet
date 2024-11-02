@@ -30,10 +30,17 @@
 #define TAG_CRYPTO_KEYPATH "tag304"
 
 /**********************
+ *      MACROS
+ **********************/
+#define _debug_print_map_size()                                             \
+    ESP_LOGI(TAG, "shared_ur_ptr_map size: %zu", shared_ur_ptr_map.size()); \
+    ESP_LOGI(TAG, "shared_ur_decoder_ptr_map size: %zu", shared_ur_decoder_ptr_map.size());
+
+/**********************
  *  STATIC VARIABLES
  **********************/
-static std::unordered_map<int, std::shared_ptr<ur::UR>> shared_ur_ptr_map;
-static std::unordered_map<int, std::shared_ptr<ur::URDecoder>> shared_ur_decoder_ptr_map;
+static std::unordered_map<uintptr_t, std::shared_ptr<ur::UR>> shared_ur_ptr_map;
+static std::unordered_map<uintptr_t, std::shared_ptr<ur::URDecoder>> shared_ur_decoder_ptr_map;
 
 extern "C"
 {
@@ -41,12 +48,18 @@ extern "C"
      *  STATIC PROTOTYPES
      **********************/
     static std::string cast_cbor_to_json(const uint8_t *output_payload, size_t output_payload_len);
+    static uintptr_t make_shared_ur_ptr(std::shared_ptr<ur::UR> ptr);
+    static uintptr_t make_shared_ur_decoder_ptr(std::shared_ptr<ur::URDecoder> ptr);
+    static void free_shared_ur_ptr(uintptr_t ptr);
+    static void free_shared_ur_decoder_ptr(uintptr_t ptr);
+    static ur::UR *get_shared_ur_ptr(uintptr_t ptr);
+    static ur::URDecoder *get_shared_ur_decoder_ptr(uintptr_t ptr);
 
     /**********************
      * GLOBAL PROTOTYPES
      **********************/
     void free_metamask_sign_request(metamask_sign_request_t *request);
-    void generate_metamask_crypto_hdkey(Wallet *wallet, char **output);
+    void generate_metamask_crypto_hdkey(Wallet wallet, char **output);
     void generate_metamask_eth_signature(uint8_t *uuid_str, uint8_t signature[65], char **output);
     int decode_metamask_sign_request(UR ur, metamask_sign_request_t *request);
 
@@ -92,6 +105,46 @@ extern "C"
         return "";
     }
 
+    static uintptr_t make_shared_ur_ptr(std::shared_ptr<ur::UR> ptr)
+    {
+        //_debug_print_map_size();
+
+        uintptr_t _ptr = (uintptr_t)ptr.get();
+        shared_ur_ptr_map[_ptr] = ptr;
+        return _ptr;
+    }
+    static uintptr_t make_shared_ur_decoder_ptr(std::shared_ptr<ur::URDecoder> ptr)
+    {
+        //_debug_print_map_size();
+
+        uintptr_t _ptr = (uintptr_t)ptr.get();
+        shared_ur_decoder_ptr_map[_ptr] = ptr;
+        return _ptr;
+    }
+    static void free_shared_ur_ptr(uintptr_t ptr)
+    {
+        if (shared_ur_ptr_map.find(ptr) != shared_ur_ptr_map.end())
+        {
+            shared_ur_ptr_map.erase(ptr);
+        }
+    }
+    static void free_shared_ur_decoder_ptr(uintptr_t ptr)
+    {
+        if (shared_ur_decoder_ptr_map.find(ptr) != shared_ur_decoder_ptr_map.end())
+        {
+            shared_ur_decoder_ptr_map.erase(ptr);
+        }
+    }
+
+    static ur::UR *get_shared_ur_ptr(uintptr_t ptr)
+    {
+        return shared_ur_ptr_map[ptr].get();
+    }
+    static ur::URDecoder *get_shared_ur_decoder_ptr(uintptr_t ptr)
+    {
+        return shared_ur_decoder_ptr_map[ptr].get();
+    }
+
     /**********************
      *   GLOBAL FUNCTIONS
      **********************/
@@ -123,11 +176,10 @@ extern "C"
         }
         free(request);
     }
-    void generate_metamask_crypto_hdkey(Wallet *wallet, char **output)
+    void generate_metamask_crypto_hdkey(Wallet wallet, char **output)
     {
-        HDPrivateKey *_wallet = (HDPrivateKey *)wallet;
         publickey_fingerprint_t publicKeyFingerprint;
-        wallet_eth_key_fingerprint(_wallet, &publicKeyFingerprint);
+        wallet_eth_key_fingerprint(wallet, &publicKeyFingerprint);
 
         uint32_t fingerprint = (publicKeyFingerprint.fingerprint[0] << 24) |
                                (publicKeyFingerprint.fingerprint[1] << 16) |
@@ -230,14 +282,14 @@ extern "C"
         ur::ByteVector vec(buf, buf + len);
         ur::UR ur_signature(type, vec);
         std::string encoded = ur::UREncoder::encode(ur_signature);
-        LOGI("encoded_ur: %s", encoded.c_str());
+        // LOGI("encoded_ur: %s", encoded.c_str());
         delete[] buf;
         *output = (char *)malloc(encoded.length() + 1);
         strcpy(*output, encoded.c_str());
     }
     int decode_metamask_sign_request(UR _ur, metamask_sign_request_t *request)
     {
-        ur::UR *ur = (ur::UR *)_ur;
+        ur::UR *ur = get_shared_ur_ptr(_ur);
         // eth-sign-request
         if (strcmp(ur->type().c_str(), METAMASK_ETH_SIGN_REQUEST) != 0)
         {
@@ -279,7 +331,7 @@ extern "C"
                 "6": "n-I5XWdpeDa0n1I6UUGn-P_QB2o" // keys_address
             }
          */
-        LOGI("json_string: %s", json_string.c_str());
+        // LOGI("json_string: %s", json_string.c_str());
         // cJSON *json = cJSON_Parse(json_string.c_str());
         std::unique_ptr<cJSON, decltype(&cJSON_Delete)> _json(cJSON_Parse(json_string.c_str()), cJSON_Delete);
         if (_json == nullptr)
@@ -430,28 +482,22 @@ extern "C"
             return;
         }
         data->ur_type = URType::Invalid;
-        data->ur = nullptr;
-        data->ur_decoder = nullptr;
+        data->ur = 0;
+        data->ur_decoder = 0;
     }
     void qrcode_protocol_bc_ur_free(qrcode_protocol_bc_ur_data_t *data)
     {
         if (data != nullptr)
         {
-            if (data->ur != nullptr)
+            if (data->ur != 0)
             {
-                int ptr = (int)data->ur;
-                if (shared_ur_ptr_map.find(ptr) != shared_ur_ptr_map.end())
-                {
-                    shared_ur_ptr_map.erase(ptr);
-                }
+                free_shared_ur_ptr((uintptr_t)data->ur);
+                data->ur = 0;
             }
-            if (data->ur_decoder != nullptr)
+            if (data->ur_decoder != 0)
             {
-                int ptr = (int)data->ur_decoder;
-                if (shared_ur_decoder_ptr_map.find(ptr) != shared_ur_decoder_ptr_map.end())
-                {
-                    shared_ur_decoder_ptr_map.erase(ptr);
-                }
+                free_shared_ur_decoder_ptr((uintptr_t)data->ur_decoder);
+                data->ur_decoder = 0;
             }
         }
     }
@@ -472,10 +518,7 @@ extern "C"
             else if (_urtype_internal == URType::MultiPart)
             {
                 data->ur_type = URType::MultiPart;
-                auto ur_decoder = std::make_shared<ur::URDecoder>();
-                int ptr = (int)ur_decoder.get();
-                shared_ur_decoder_ptr_map[ptr] = ur_decoder;
-                data->ur_decoder = (URDecoder)ptr;
+                data->ur_decoder = (URDecoder)make_shared_ur_decoder_ptr(std::make_shared<ur::URDecoder>());
             }
             else
             {
@@ -494,29 +537,21 @@ extern "C"
             ur::UR decoded_ur = ur::URDecoder::decode(receiveStr);
             if (decoded_ur.is_valid())
             {
-                std::shared_ptr<ur::UR> _ur = std::make_shared<ur::UR>(decoded_ur);
-                auto _ur_ptr = _ur.get();
-                int ptr = (int)_ur_ptr;
-                shared_ur_ptr_map[ptr] = _ur;
-                data->ur = (UR)_ur_ptr;
+                data->ur = (UR)make_shared_ur_ptr(std::make_shared<ur::UR>(decoded_ur));
                 return true;
             }
             return false;
         }
         else if (data->ur_type == URType::MultiPart)
         {
-            auto ur_decoder = (ur::URDecoder *)data->ur_decoder;
+            auto ur_decoder = get_shared_ur_decoder_ptr(data->ur_decoder);
             if (ur_decoder->receive_part(receiveStr))
             {
                 if (ur_decoder->is_complete())
                 {
                     if (ur_decoder->is_success())
                     {
-                        std::shared_ptr<ur::UR> _ur = std::make_shared<ur::UR>(ur_decoder->result_ur());
-                        auto _ur_ptr = _ur.get();
-                        int ptr = (int)_ur_ptr;
-                        shared_ur_ptr_map[ptr] = _ur;
-                        data->ur = (UR)_ur_ptr;
+                        data->ur = (UR)make_shared_ur_ptr(std::make_shared<ur::UR>(ur_decoder->result_ur()));
                     }
                 }
                 return true;
@@ -534,13 +569,13 @@ extern "C"
         }
         if (data->ur_type == URType::SinglePart)
         {
-            return data->ur != nullptr;
+            return data->ur != 0;
         }
         else if (data->ur_type == URType::MultiPart)
         {
-            if (data->ur_decoder != nullptr)
+            if (data->ur_decoder != 0)
             {
-                auto ur_decoder = (ur::URDecoder *)data->ur_decoder;
+                auto ur_decoder = get_shared_ur_decoder_ptr(data->ur_decoder);
                 return ur_decoder->is_complete();
             }
         }
@@ -557,7 +592,7 @@ extern "C"
             }
             else if (data->ur_type == URType::MultiPart)
             {
-                auto ur_decoder = (ur::URDecoder *)data->ur_decoder;
+                auto ur_decoder = get_shared_ur_decoder_ptr(data->ur_decoder);
                 return ur_decoder->is_success();
             }
         }
@@ -570,7 +605,7 @@ extern "C"
         {
             return NULL;
         }
-        ur::UR *ur = (ur::UR *)data->ur;
+        ur::UR *ur = get_shared_ur_ptr(data->ur);
         return ur->type().c_str();
     }
 }

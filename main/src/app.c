@@ -23,13 +23,13 @@
 #include "app_peripherals.h"
 #include "esp_heap_caps.h"
 #include "controller/ctrl_init.h"
+#include "stack_log.h"
 
 /*********************
  *      DEFINES
  *********************/
 #define TAG "app"
 #define DELAY_MS_MAX 500
-#define LOG_STACK_USAGE 1
 
 /**********************
  *  STATIC PROTOTYPES
@@ -77,49 +77,19 @@ void app_main(void)
     printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
 
     fflush(stdout);
-
-    // {
-    //     char *key = "key2";
-    //     char *value = NULL;
-    //     int ret = kv_load(key, &value);
-    //     if (ret != ESP_OK)
-    //     {
-    //         ESP_LOGE(TAG, "kv_load failed");
-    //     }
-    //     else
-    //     {
-    //         ESP_LOGD(TAG, "kv_load success");
-    //         if (value != NULL)
-    //         {
-    //             ESP_LOGD(TAG, "kv_load success,length: %d", strlen(value));
-    //             ESP_LOGD(TAG, "value: %s", value);
-    //             free(value);
-    //             value = NULL;
-    //         }
-    //     }
-    //     ret = kv_save(key, "value1");
-    //     if (ret != ESP_OK)
-    //     {
-    //         ESP_LOGE(TAG, "kv_save failed");
-    //     }
-    //     else
-    //     {
-    //         ESP_LOGD(TAG, "kv_save success");
-    //     }
-    // }
     // sleep 0.5s
     vTaskDelay(pdMS_TO_TICKS(500));
     ESP_ERROR_CHECK(app_lvgl_init());
     TaskHandle_t pxCreatedTask;
-    BaseType_t ret = xTaskCreatePinnedToCore(ctrl_init, "ctrl_init", 8 * 1024, NULL, 10, &pxCreatedTask, MCU_CORE0);
+    BaseType_t ret = xTaskCreatePinnedToCore(ctrl_init, "ctrl_init", 6 * 1024, NULL, 10, &pxCreatedTask, MCU_CORE0);
     if (ret != pdTRUE)
     {
         ESP_LOGE(TAG, "xTaskCreatePinnedToCore failed");
     }
 
-#if LOG_STACK_USAGE
-    UBaseType_t stackHighWaterMark = 0;
-#endif
+    LOG_STACK_USAGE_TASK_INIT(main_task);
+    LOG_STACK_USAGE_TASK_INIT(ctrl_init_task);
+
     uint32_t task_delay_ms = 0;
     while (1)
     {
@@ -134,13 +104,7 @@ void app_main(void)
         }
         vTaskDelay(pdMS_TO_TICKS(task_delay_ms));
 
-#if LOG_STACK_USAGE
-        UBaseType_t _stackHighWaterMark = uxTaskGetStackHighWaterMark(pxCreatedTask);
-        if (_stackHighWaterMark != stackHighWaterMark)
-        {
-            stackHighWaterMark = _stackHighWaterMark;
-            ESP_LOGI("MEM USAGE", "Task ctrl_init remaining stack size: %u bytes, free heap size: %" PRIu32 " bytes\n", stackHighWaterMark * sizeof(StackType_t), esp_get_free_heap_size());
-        }
-#endif
+        LOG_STACK_USAGE_TASK(NULL, main_task);
+        LOG_STACK_USAGE_TASK(pxCreatedTask, ctrl_init_task);
     }
 }

@@ -20,7 +20,7 @@ extern "C"
     /**********************
      *      TYPEDEFS
      **********************/
-    typedef void *Wallet;
+    typedef uintptr_t Wallet;
     typedef struct __attribute__((aligned(4)))
     {
         uint8_t public_key[33];
@@ -44,9 +44,6 @@ extern "C"
     void wallet_get_btc_address_legacy(Wallet wallet, char address[43]);
     void wallet_get_eth_address(Wallet wallet, char address[43]);
     void wallet_eth_sign(Wallet wallet, const uint8_t hash[32], uint8_t signature[65]);
-    void wallet_eth_sign_serialized_data(Wallet wallet, uint8_t *serialized_data, size_t serialized_data_len, uint8_t signature[65]);
-    void wallet_eth_sign_personal_message(Wallet wallet, char *message, uint8_t signature[65]);
-    void wallet_keccak256_eip191(char *data, unsigned char digest[33]);
     void wallet_bin_to_hex_string(const uint8_t *bin, size_t bin_len, char **hex_string);
 
 #ifdef __cplusplus
