@@ -159,7 +159,7 @@ extern "C"
     {
         HDPrivateKey *_wallet = get_shared_ptr(wallet);
         uint8_t xy[64] = {0};
-        unsigned char eth_address[64] = {0};
+        uint8_t eth_address[64] = {0};
         memcpy(xy, _wallet->publicKey().point, 64);
         keccak_256(xy, 64, eth_address);
         auto str = "0x" + toHex(eth_address + 12, 20);

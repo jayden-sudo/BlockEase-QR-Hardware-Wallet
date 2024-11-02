@@ -21,7 +21,7 @@ extern "C"
         const char *json_str_message,
         uint8_t typed_data_hash[32]);
 
-    void ethereum_keccak256(const unsigned char *data, size_t len, uint8_t digest[32]);
+    void ethereum_keccak256(const uint8_t *data, size_t len, uint8_t digest[32]);
     void ethereum_keccak256_eip191(const char *data, size_t len, uint8_t digest[32]);
 
 #ifdef __cplusplus

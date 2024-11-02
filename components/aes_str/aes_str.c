@@ -18,28 +18,28 @@ static const char *TAG = "aes_str";
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-static inline int aes_set_key(mbedtls_aes_context *ctx, const unsigned char *key);
+static inline int aes_set_key(mbedtls_aes_context *ctx, const uint8_t *key);
 static int aes_crypt_block(mbedtls_aes_context *ctx, int mode,
-						   const unsigned char *input, unsigned char *output);
+						   const uint8_t *input, uint8_t *output);
 
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-int aes_encrypt(const unsigned char key[32], const unsigned char *plaintext,
-				size_t len, unsigned char *ciphertext);
-int aes_decrypt(const unsigned char key[32], const unsigned char *ciphertext,
-				size_t len, unsigned char *plaintext);
+int aes_encrypt(const uint8_t key[32], const uint8_t *plaintext,
+				size_t len, uint8_t *ciphertext);
+int aes_decrypt(const uint8_t key[32], const uint8_t *ciphertext,
+				size_t len, uint8_t *plaintext);
 
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static inline int aes_set_key(mbedtls_aes_context *ctx, const unsigned char *key)
+static inline int aes_set_key(mbedtls_aes_context *ctx, const uint8_t *key)
 {
 	return mbedtls_aes_setkey_enc(ctx, key, 256);
 }
 
 static int aes_crypt_block(mbedtls_aes_context *ctx, int mode,
-						   const unsigned char *input, unsigned char *output)
+						   const uint8_t *input, uint8_t *output)
 {
 	return mbedtls_aes_crypt_ecb(ctx, mode, input, output);
 }
@@ -47,8 +47,8 @@ static int aes_crypt_block(mbedtls_aes_context *ctx, int mode,
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-int aes_crypt_ecb(const unsigned char *key, int mode,
-				  const unsigned char input[16], unsigned char output[16])
+int aes_crypt_ecb(const uint8_t *key, int mode,
+				  const uint8_t input[16], uint8_t output[16])
 {
 	mbedtls_aes_context ctx;
 	int ret;
@@ -66,8 +66,8 @@ error:
 	return ret;
 }
 
-int aes_encrypt(const unsigned char key[32], const unsigned char *plaintext,
-				size_t len, unsigned char *ciphertext)
+int aes_encrypt(const uint8_t key[32], const uint8_t *plaintext,
+				size_t len, uint8_t *ciphertext)
 {
 	size_t i;
 	int ret;
@@ -86,8 +86,8 @@ int aes_encrypt(const unsigned char key[32], const unsigned char *plaintext,
 	return 0;
 }
 
-int aes_decrypt(const unsigned char key[32], const unsigned char *ciphertext,
-				size_t len, unsigned char *plaintext)
+int aes_decrypt(const uint8_t key[32], const uint8_t *ciphertext,
+				size_t len, uint8_t *plaintext)
 {
 	size_t i;
 	int ret;
