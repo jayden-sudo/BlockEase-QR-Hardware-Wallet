@@ -72,6 +72,7 @@ extern "C"
     bool qrcode_protocol_bc_ur_receive(qrcode_protocol_bc_ur_data_t *data, const char *receiveStr);
     bool qrcode_protocol_bc_ur_is_complete(qrcode_protocol_bc_ur_data_t *data);
     bool qrcode_protocol_bc_ur_is_success(qrcode_protocol_bc_ur_data_t *data);
+    size_t qrcode_protocol_bc_ur_progress(qrcode_protocol_bc_ur_data_t *data);
     const char *qrcode_protocol_bc_ur_type(qrcode_protocol_bc_ur_data_t *data);
 
 #ifdef __cplusplus

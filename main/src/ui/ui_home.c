@@ -63,6 +63,7 @@ typedef struct
  **********************/
 static lv_obj_t *tv = NULL;
 static lv_obj_t *preview_image = NULL;
+static lv_obj_t *progress_bar = NULL;
 static lv_obj_t *incorrect_pin_count_max_dd = NULL;
 static alloc_utils_memory_struct *alloc_utils_memory_struct_pointer;
 static ui_master_page_t *sub_master_page = NULL;
@@ -90,6 +91,8 @@ void ui_home_init(void);
 void ui_home_destroy(void);
 void ui_home_start_qr_scan(void);
 void ui_home_stop_qr_scan(void);
+void ui_home_update_camera_preview(void *src);
+void ui_home_set_qr_scan_progress(size_t progress);
 
 /**********************
  *   STATIC FUNCTIONS
@@ -241,6 +244,11 @@ static void create_tab_scanner(lv_obj_t *parent)
     preview_image = lv_image_create(parent);
     lv_obj_center(preview_image);
     lv_obj_set_size(preview_image, 240, 240);
+    progress_bar = lv_bar_create(parent);
+    lv_bar_set_range(progress_bar, 0, 100);
+    lv_obj_set_size(progress_bar, 100, 15);
+    lv_obj_set_pos(progress_bar, 240 - 100 - 10, 10);
+    lv_obj_add_flag(progress_bar, LV_OBJ_FLAG_HIDDEN);
 }
 static void create_tab_settings(lv_obj_t *parent)
 {
@@ -328,7 +336,7 @@ static void lv_tabview_event_handler(lv_event_t *e)
         uint32_t tab_index = lv_tabview_get_tab_active(obj);
         if (tab_index == 1)
         {
-            ctrl_home_scan_qr_start(preview_image);
+            ctrl_home_scan_qr_start(preview_image, progress_bar);
         }
         else
         {
@@ -645,5 +653,29 @@ void ui_home_stop_qr_scan(void)
             }
             lvgl_port_unlock();
         }
+    }
+}
+void ui_home_update_camera_preview(void *src)
+{
+    if (preview_image != NULL && lvgl_port_lock(0))
+    {
+        lv_img_set_src(preview_image, src);
+        lvgl_port_unlock();
+    }
+}
+void ui_home_set_qr_scan_progress(size_t progress)
+{
+    if (progress_bar != NULL && lvgl_port_lock(0))
+    {
+        if (progress == 0)
+        {
+            lv_obj_add_flag(progress_bar, LV_OBJ_FLAG_HIDDEN);
+        }
+        else
+        {
+            lv_obj_clear_flag(progress_bar, LV_OBJ_FLAG_HIDDEN);
+        }
+        lv_bar_set_value(progress_bar, progress, LV_ANIM_ON);
+        lvgl_port_unlock();
     }
 }

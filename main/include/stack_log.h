@@ -8,6 +8,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <stdbool.h>
+#include <esp_heap_caps.h>
 
 /*********************
  *      DEFINES
@@ -33,6 +34,10 @@
             stackHighWaterMark_##task_name = ___stackHighWaterMark;                                                                                                                                         \
             heap_size_##task_name = ___heap_size;                                                                                                                                                           \
             ESP_LOGW("MEM USAGE", "Task %s remaining stack size: %u bytes, free heap size: %" PRIu32 " bytes", #task_name, stackHighWaterMark_##task_name * sizeof(StackType_t), esp_get_free_heap_size()); \
+        }                                                                                                                                                                                                   \
+        if (false && xTask == NULL && !heap_caps_check_integrity_all(true))                                                                                                                                                           \
+        {                                                                                                                                                                                                   \
+            ESP_LOGE("CAP CHECK", "Heap integrity check failed");                                                                                                                                           \
         }                                                                                                                                                                                                   \
     } while (0);
 

@@ -18,6 +18,8 @@ extern "C"
     void ui_home_destroy(void);
     void ui_home_start_qr_scan(void);
     void ui_home_stop_qr_scan(void);
+    void ui_home_update_camera_preview(void *src);
+    void ui_home_set_qr_scan_progress(size_t progress);
 
 #ifdef __cplusplus
     extern "C"

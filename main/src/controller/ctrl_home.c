@@ -21,7 +21,8 @@
 #include "controller/ctrl_sign.h"
 #include "controller/ctrl_init.h"
 #include "freertos/timers.h"
-#include <wallet_db.h>
+#include "wallet_db.h"
+#include "stack_log.h"
 
 /*********************
  *      DEFINES
@@ -32,6 +33,15 @@ LV_IMG_DECLARE(logo_ethereum)
 LV_IMG_DECLARE(wallet_imtoken)
 LV_IMG_DECLARE(wallet_metamask)
 LV_IMG_DECLARE(wallet_rabby)
+
+/**********************
+ *      TYPEDEFS
+ **********************/
+typedef struct
+{
+    lv_obj_t *image;
+    lv_obj_t *progress_bar;
+} ctrl_home_scan_qr_data_t;
 
 /**********************
  *  STATIC VARIABLES
@@ -62,7 +72,7 @@ ctrl_home_network_data_t *ctrl_home_list_networks(void);
 char *ctrl_home_get_connect_qrcode(ctrl_home_network_data_t *network, ctrl_home_connect_qr_type qr_type);
 
 /* scanner page */
-void ctrl_home_scan_qr_start(lv_obj_t *canvas);
+void ctrl_home_scan_qr_start(lv_obj_t *image, lv_obj_t *progress_bar);
 void ctrl_home_scan_qr_stop(void);
 
 /* settings page */
@@ -77,7 +87,12 @@ bool ctrl_home_pin_max_attempts_set(int max_attempts);
 static void qrScannerTask(void *parameters)
 {
     int width = 240;
-    lv_obj_t *image = (lv_obj_t *)parameters;
+
+    ctrl_home_scan_qr_data_t *scan_qr_data = (ctrl_home_scan_qr_data_t *)parameters;
+    lv_obj_t *image = scan_qr_data->image;
+    lv_obj_t *progress_bar = scan_qr_data->progress_bar;
+    free(scan_qr_data);
+
     if (ESP_OK != app_camera_init())
     {
         return;
@@ -135,6 +150,8 @@ static void qrScannerTask(void *parameters)
     uint32_t LOCK_SCREEN_TIMEOUT_MS = walletData.lockScreenTimeout;
 
     TickType_t time_start = xTaskGetTickCount();
+
+    LOG_STACK_USAGE_TASK_INIT(qrScannerTask);
 
     while (scan_task_status_request && !scan_success)
     {
@@ -205,13 +222,9 @@ static void qrScannerTask(void *parameters)
         {
             img_buffer.data = fb->buf;
         }
-        vTaskDelay(pdMS_TO_TICKS(10));
-        if (lvgl_port_lock(0))
-        {
-            lv_img_set_src(image, &img_buffer);
-            lvgl_port_unlock();
-        }
-        vTaskDelay(pdMS_TO_TICKS(10));
+
+        ui_home_update_camera_preview(&img_buffer);
+        vTaskDelay(pdMS_TO_TICKS(15));
 
         bool debug_mode = false;
         if (debug_mode)
@@ -242,6 +255,12 @@ static void qrScannerTask(void *parameters)
                     // ESP_LOGI(TAG, "scan result:%s", result.data);
                     // Decode UR
                     qrcode_protocol_bc_ur_receive(qrcode_protocol_bc_ur_data, result.data);
+                    size_t progress = qrcode_protocol_bc_ur_progress(qrcode_protocol_bc_ur_data);
+                    if (progress > 0)
+                    {
+                        progress *= 0.9;
+                        ui_home_set_qr_scan_progress(progress);
+                    }
                     if (qrcode_protocol_bc_ur_is_success(qrcode_protocol_bc_ur_data))
                     {
                         // ESP_LOGI(TAG, "scan success");
@@ -265,6 +284,8 @@ static void qrScannerTask(void *parameters)
             scan_task_status_request = false;
             lv_async_call(ctrl_home_lock_screen, NULL);
         }
+
+        LOG_STACK_USAGE_TASK(NULL, qrScannerTask);
     }
 
     if (!scan_success)
@@ -274,11 +295,8 @@ static void qrScannerTask(void *parameters)
         qrcode_protocol_bc_ur_data = NULL;
     } // if scan success, ctrl_sign_init will free qrcode_protocol_bc_ur_data
 
-    if (lvgl_port_lock(0))
-    {
-        lv_img_set_src(image, NULL);
-        lvgl_port_unlock();
-    }
+    ui_home_update_camera_preview(NULL);
+    ui_home_set_qr_scan_progress(0);
     if (swap_buf != NULL)
     {
         free(swap_buf);
@@ -519,10 +537,13 @@ char *ctrl_home_get_connect_qrcode(ctrl_home_network_data_t *network, ctrl_home_
 }
 
 /* scanner page */
-void ctrl_home_scan_qr_start(lv_obj_t *image)
+void ctrl_home_scan_qr_start(lv_obj_t *image, lv_obj_t *progress_bar)
 {
     scan_task_status_request = true;
-    xTaskCreatePinnedToCore(qrScannerTask, "qrScannerTask", 4 * 1024, image, 10, NULL, MCU_CORE1);
+    ctrl_home_scan_qr_data_t *scan_qr_data = (ctrl_home_scan_qr_data_t *)malloc(sizeof(ctrl_home_scan_qr_data_t));
+    scan_qr_data->image = image;
+    scan_qr_data->progress_bar = progress_bar;
+    xTaskCreatePinnedToCore(qrScannerTask, "qrScannerTask", 4 * 1024, scan_qr_data, 10, NULL, MCU_CORE1);
 }
 void ctrl_home_scan_qr_stop(void)
 {

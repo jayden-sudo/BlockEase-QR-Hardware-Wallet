@@ -67,6 +67,7 @@ extern "C"
     void qrcode_protocol_bc_ur_init(qrcode_protocol_bc_ur_data_t *data);
     void qrcode_protocol_bc_ur_free(qrcode_protocol_bc_ur_data_t *data);
     bool qrcode_protocol_bc_ur_receive(qrcode_protocol_bc_ur_data_t *data, const char *receiveStr);
+    size_t qrcode_protocol_bc_ur_progress(qrcode_protocol_bc_ur_data_t *data);
     bool qrcode_protocol_bc_ur_is_complete(qrcode_protocol_bc_ur_data_t *data);
     bool qrcode_protocol_bc_ur_is_success(qrcode_protocol_bc_ur_data_t *data);
     const char *qrcode_protocol_bc_ur_type(qrcode_protocol_bc_ur_data_t *data);
@@ -559,6 +560,24 @@ extern "C"
             return false;
         }
         return false;
+    }
+    size_t qrcode_protocol_bc_ur_progress(qrcode_protocol_bc_ur_data_t *data)
+    {
+        if (data == nullptr)
+        {
+            ESP_LOGE(TAG, "qrcode_protocol_bc_ur_data_t *data is nullptr");
+            return 0;
+        }
+        if (data->ur_type == URType::SinglePart)
+        {
+            return 100;
+        }
+        else if (data->ur_type == URType::MultiPart)
+        {
+            auto ur_decoder = get_shared_ur_decoder_ptr(data->ur_decoder);
+            return (size_t)(ur_decoder->estimated_percent_complete() * 100);
+        }
+        return 0;
     }
     bool qrcode_protocol_bc_ur_is_complete(qrcode_protocol_bc_ur_data_t *data)
     {
