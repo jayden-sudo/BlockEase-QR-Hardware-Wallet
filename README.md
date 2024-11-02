@@ -73,8 +73,8 @@ The current development is based on the [**ESP32-S3 MCU**](https://www.espressif
     - [ ] Blob Transactions (EIP-4844)
     - [x] Sign Personal Message
     - [ ] Sign Typed Data
-    - [ ] Sign Typed Data V3
-    - [ ] Sign Typed Data V4
+    - [x] Sign Typed Data V3
+    - [x] Sign Typed Data V4
     - [ ] Sign Permit
   - Wallet
     - [x] MetaMask

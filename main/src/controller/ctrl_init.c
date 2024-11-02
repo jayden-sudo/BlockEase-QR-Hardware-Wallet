@@ -60,22 +60,6 @@ void ctrl_init(void *parameters)
         ctrl_wizard_destroy();
         /* show main page */
         ctrl_home_init(privateKeyStr);
-
-        // debug
-        // TaskHandle_t lvgl_task_handle = __test_get_lvgl_task_handle();
-        // UBaseType_t stackHighWaterMark = 0;
-        // while (home_flag == 0)
-        // {
-        //     vTaskDelay(pdMS_TO_TICKS(10));
-
-        //     UBaseType_t _stackHighWaterMark = uxTaskGetStackHighWaterMark(lvgl_task_handle);
-        //     if (_stackHighWaterMark != stackHighWaterMark)
-        //     {
-        //         stackHighWaterMark = _stackHighWaterMark;
-        //         ESP_LOGI("MEM USAGE", "Task LVGL remaining stack size: %u bytes", stackHighWaterMark * sizeof(StackType_t));
-        //     }
-        // }
-
         while (true)
         {
             EventBits_t bits = xEventGroupWaitBits(
