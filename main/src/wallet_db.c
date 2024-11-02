@@ -32,7 +32,7 @@ static char temp[64];
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-static void pin_avoid_rainbow_table(const char *pinStr, const unsigned char padding[32], unsigned char key[32]);
+static void pin_avoid_rainbow_table(const char *pinStr, const uint8_t padding[32], uint8_t key[32]);
 static uint32_t checksum(wallet_data_version_1_t *walletData);
 static void reset_task(void *parameters);
 size_t wallet_data_to_bin(wallet_data_version_1_t *walletData, char **hex);
@@ -53,7 +53,7 @@ char *wallet_db_passcode_static_error_msg();
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static void pin_avoid_rainbow_table(const char *pinStr, const unsigned char padding[32], unsigned char key[32])
+static void pin_avoid_rainbow_table(const char *pinStr, const uint8_t padding[32], uint8_t key[32])
 {
     size_t len = sizeof(char) * (strlen(pinStr) + strlen(RAINBOW_TABLE_SALT) + 32 + 1);
     char *str = malloc(len);
@@ -74,7 +74,7 @@ static uint32_t checksum(wallet_data_version_1_t *walletData)
 {
     // copy walletData to m,except `uint32_t checksum`
     size_t size = sizeof(wallet_data_version_1_t) - sizeof(uint32_t);
-    unsigned char *m = (unsigned char *)malloc(size);
+    uint8_t *m = (uint8_t *)malloc(size);
     memcpy(m, walletData, size);
     uint32_t c = crc32(0, m, size);
     free(m);
@@ -191,16 +191,16 @@ bool wallet_db_init_wallet_data(char *phrase_str, char *pin_str, char **private_
     memset(walletData, 0, sizeof(wallet_data_version_1_t));
     walletData->signPinRequired = SIGN_PIN_REQUIRED;
     esp_fill_random(walletData->pinPadding, 32);
-    unsigned char *key = malloc(32);
+    uint8_t *key = malloc(32);
     pin_avoid_rainbow_table(pin_str, walletData->pinPadding, key);
     aes_encrypt(key,
-                (unsigned char *)root_private_key,
-                PRIVATE_KEY_SIZE, (unsigned char *)(walletData->privateKey));
+                (uint8_t *)root_private_key,
+                PRIVATE_KEY_SIZE, (uint8_t *)(walletData->privateKey));
     // test decrypt
     {
-        unsigned char rootPrivateKey[PRIVATE_KEY_SIZE + 1];
+        uint8_t rootPrivateKey[PRIVATE_KEY_SIZE + 1];
         aes_decrypt(key,
-                    (unsigned char *)(walletData->privateKey), PRIVATE_KEY_SIZE,
+                    (uint8_t *)(walletData->privateKey), PRIVATE_KEY_SIZE,
                     rootPrivateKey);
         if (strcmp(root_private_key, (char *)rootPrivateKey) != 0)
         {
@@ -276,11 +276,11 @@ char *wallet_db_verify_pin(char *pin_str)
         return NULL;
     }
     // check pin
-    unsigned char *key = malloc(32);
+    uint8_t *key = malloc(32);
     pin_avoid_rainbow_table(pin_str, walletData_cache->pinPadding, key);
-    unsigned char rootPrivateKey[PRIVATE_KEY_SIZE + 1];
+    uint8_t rootPrivateKey[PRIVATE_KEY_SIZE + 1];
     aes_decrypt(key,
-                (unsigned char *)(walletData_cache->privateKey), PRIVATE_KEY_SIZE,
+                (uint8_t *)(walletData_cache->privateKey), PRIVATE_KEY_SIZE,
                 rootPrivateKey);
     rootPrivateKey[PRIVATE_KEY_SIZE] = '\0';
     free(key);

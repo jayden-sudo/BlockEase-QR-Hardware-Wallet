@@ -76,7 +76,7 @@
         return total_len + 1;
 */
 
-size_t bytes_to_int(const unsigned char *bytes, size_t length)
+size_t bytes_to_int(const uint8_t *bytes, size_t length)
 {
     size_t result = 0;
     for (size_t i = 0; i < length && i < sizeof(size_t); i++)
@@ -86,7 +86,7 @@ size_t bytes_to_int(const unsigned char *bytes, size_t length)
     return result;
 }
 
-size_t int_to_bytes(size_t input, unsigned char resultArray[5])
+size_t int_to_bytes(size_t input, uint8_t resultArray[5])
 {
     size_t i = 5;
     while (input > 0)
@@ -189,7 +189,7 @@ static int rlp_encode_array_content(uint8_t *buf, size_t buf_len, struct RLP_ITE
             else
             {
 
-                unsigned char resultArray[5];
+                uint8_t resultArray[5];
                 size_t i = int_to_bytes(item->content_len, resultArray);
                 // array length
                 size_t arrayLength = 5 - i;
@@ -220,7 +220,7 @@ static int rlp_encode_array_content(uint8_t *buf, size_t buf_len, struct RLP_ITE
             }
             else
             {
-                unsigned char resultArray[5];
+                uint8_t resultArray[5];
                 size_t i = int_to_bytes(item->content_len, resultArray);
                 // array length
                 size_t arrayLength = 5 - i;
@@ -271,7 +271,7 @@ int rlp_encode_array(uint8_t *buf, size_t buf_len, struct RLP_ITEM **item_array,
     }
     else
     {
-        unsigned char resultArray[5];
+        uint8_t resultArray[5];
         size_t i = int_to_bytes(__content_len, resultArray);
         // array length
         size_t arrayLength = 5 - i;

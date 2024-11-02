@@ -20,10 +20,10 @@ extern "C"
     /**********************
      * GLOBAL PROTOTYPES
      **********************/
-    int aes_encrypt(const unsigned char key[32], const unsigned char *plaintext,
-                    size_t len, unsigned char *ciphertext);
-    int aes_decrypt(const unsigned char key[32], const unsigned char *ciphertext,
-                    size_t len, unsigned char *plaintext);
+    int aes_encrypt(const uint8_t key[32], const uint8_t *plaintext,
+                    size_t len, uint8_t *ciphertext);
+    int aes_decrypt(const uint8_t key[32], const uint8_t *ciphertext,
+                    size_t len, uint8_t *plaintext);
 
 #ifdef __cplusplus
 }
