@@ -80,7 +80,7 @@ extern "C"
     char *ctrl_home_get_connect_qrcode(ctrl_home_network_data_t *network, ctrl_home_connect_qr_type qr_type);
 
     /* scanner page */
-    void ctrl_home_scan_qr_start(lv_obj_t *image);
+    void ctrl_home_scan_qr_start(lv_obj_t *image, lv_obj_t *progress_bar);
     void ctrl_home_scan_qr_stop(void);
 
     /* settings page */
