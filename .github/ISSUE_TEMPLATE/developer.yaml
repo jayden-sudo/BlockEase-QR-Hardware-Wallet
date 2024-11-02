@@ -1,6 +1,6 @@
 name: "👨‍💻 Developer Experience Improvement Suggestion"
 description: "Submit suggestions for improving developer experience, such as naming conventions or tool usage."
-title: "👨‍💻 [DE-Improvement]"
+title: "👨‍💻 [DE-Improvement] "
 labels: ["developer-experience"]
 body:
   - type: markdown

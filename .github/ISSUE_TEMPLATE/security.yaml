@@ -1,6 +1,6 @@
 name: "🔒 Security Issue"
 description: "Report a potential security vulnerability"
-title: "🔒 [Security]"
+title: "🔒 [Security] "
 labels: ["security"]
 body:
   - type: markdown
