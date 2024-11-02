@@ -1,6 +1,6 @@
 name: "🧩 Usability Issue"
 description: "Suggest improvements related to usability"
-title: "🧩 [Usability]"
+title: "🧩 [Usability] "
 labels: ["usability"]
 body:
   - type: markdown

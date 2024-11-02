@@ -1,6 +1,6 @@
 name: "🛠 Hardware Issue"
 description: "Report issues related to hardware"
-title: "🛠 [Hardware]"
+title: "🛠 [Hardware] "
 labels: ["hardware"]
 body:
   - type: markdown

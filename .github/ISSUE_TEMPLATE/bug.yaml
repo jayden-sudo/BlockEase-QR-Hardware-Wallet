@@ -1,6 +1,6 @@
 name: "🐛 Bug Report"
 description: "Report a software bug"
-title: "🐛 [Bug]"
+title: "🐛 [Bug] "
 labels: ["bug"]
 body:
   - type: markdown
