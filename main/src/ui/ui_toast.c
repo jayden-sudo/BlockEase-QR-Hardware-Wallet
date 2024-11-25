@@ -64,7 +64,10 @@ void ui_toast_show(const char *text, int duration)
         lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), 0);
         lv_obj_center(label);
 
-        lv_timer_create(close_toast, duration, mask_view);
+        if (duration > 0)
+        {
+            lv_timer_create(close_toast, duration, mask_view);
+        }
 
         lvgl_port_unlock();
     }

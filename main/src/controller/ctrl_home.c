@@ -127,10 +127,11 @@ static void qrScannerTask(void *parameters)
     uint8_t *swap_buf = NULL;
     uint8_t *line_buf = NULL;
     int line_size = width * 2; // RGB565 2 bytes per pixel
-    if (CAMERA_SWAP_X || CAMERA_SWAP_Y)
+    peripherals_config_t *peripherals_config = app_peripherals_read();
+    if (peripherals_config->camera_module_config.swap_x || peripherals_config->camera_module_config.swap_y)
     {
         swap_buf = (uint8_t *)malloc(line_size * width);
-        if (!CAMERA_SWAP_Y)
+        if (!peripherals_config->camera_module_config.swap_y)
         {
             line_buf = (uint8_t *)malloc(line_size);
         }
@@ -161,11 +162,11 @@ static void qrScannerTask(void *parameters)
             ESP_LOGE(TAG, "camera get failed");
             continue;
         }
-        if (CAMERA_SWAP_X || CAMERA_SWAP_Y)
+        if (peripherals_config->camera_module_config.swap_x || peripherals_config->camera_module_config.swap_y)
         {
             int new_x;
             int new_y;
-            if (CAMERA_SWAP_X && CAMERA_SWAP_Y)
+            if (peripherals_config->camera_module_config.swap_x && peripherals_config->camera_module_config.swap_y)
             {
                 /*
                  (0,0) -> (239,239)
@@ -184,7 +185,7 @@ static void qrScannerTask(void *parameters)
                     }
                 }
             }
-            else if (CAMERA_SWAP_X)
+            else if (peripherals_config->camera_module_config.swap_x)
             {
                 /*
                  (0,0) -> (239,0)
@@ -202,7 +203,7 @@ static void qrScannerTask(void *parameters)
                     }
                 }
             }
-            else if (CAMERA_SWAP_Y)
+            else if (peripherals_config->camera_module_config.swap_y)
             {
                 /*
                (0,0) -> (0,239)

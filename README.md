@@ -35,18 +35,21 @@ The current development is based on the [**ESP32-S3 MCU**](https://www.espressif
 
   | Screen            | Support | Test |
   | ----------------- | ------- | ---- |
-  | >=`240(W)*320(H)` | ✅       | ✅    |
+  | >=`240(W)*320(H)` | ✅       |    |
+  | `240(W)*320(H)` | ✅       | ✅    |
 
   - LCD
   
     - | LCD     | Support | Test |
       | ------- | ------- | ---- |
-      | ST7735  | ✅       |      |
-      | ST7789  | ✅       | ✅    |
-      | ST7796  | ✅       |      |
-      | ILI9341 | ✅       |      |
-      | GC9A01  | ✅       |      |
-      |         |         |      |
+      | ST7735  |        |      |
+      | ST7789  | ✅     | ✅    |
+      | ST7796  |        |      |
+      | ILI9341 |        |      |
+      | SSD1306 | ✅     |      |
+      | NT35510 | ✅ |      |
+      | GC9A01  |        |      |
+      |         |        |      |
   
   - Touch Panel
   
@@ -93,6 +96,27 @@ The current development is based on the [**ESP32-S3 MCU**](https://www.espressif
 <img src="docs/images/enter-mnemonic.gif" alt="enter mnemonic" style="width: 400px;height: 599px;">
 </div>
 *Hardware:ESP_S3_EYE-compatible dev board ($6), OV3660-compatible camera ($2), second-hand capacitive touchscreen (240x320, ST7789+FT6X36, $7)*
+
+## Run Guide
+
+This program consists of two parts:
+
+   - Hardware Configuration: [QR-Hardware-Wallet-Peripherals](https://github.com/BlockEase/QR-Hardware-Wallet-Peripherals)
+   - Main Program: [QR-Hardware-Wallet](https://github.com/BlockEase/QR-Hardware-Wallet) (this repository)
+
+**Steps to Run**
+
+**1. Hardware Peripheral Configuration (Run Once)**
+
+   - Fork [QR-Hardware-Wallet-Peripherals](https://github.com/BlockEase/QR-Hardware-Wallet-Peripherals).
+   - Modify [peripherals.h](https://github.com/BlockEase/QR-Hardware-Wallet-Peripherals/blob/main/main/peripherals.h) based on your dev board configuration.
+   - Compile and flash the **QR-Hardware-Wallet-Peripherals** firmware to your dev board.
+   - Verify that the touchscreen, LCD, and camera modules. Follow the on-screen instructions to save the hardware peripheral configuration to the OEM partition.
+
+**2. Run the Main Program**
+
+   - Compile [QR-Hardware-Wallet](https://github.com/BlockEase/QR-Hardware-Wallet) locally or download the pre-built firmware from [Releases](https://github.com/BlockEase/QR-Hardware-Wallet/releases) (not available yet).
+   - Flash the firmware to your dev board.
 
 ## How to Build
 

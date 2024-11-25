@@ -429,7 +429,7 @@ static void ui_event_handler(lv_event_t *e)
         }
         else if (ui_action->action == SETTINGS_ACTION_SHOW_GITHUB_PAGE)
         {
-            ui_qr_code_init("Github", "Homepage", "https://github.com/jayden-sudo/QR-Hardware-Wallet", "https://github.com/jayden-sudo/QR-Hardware-Wallet");
+            ui_qr_code_init("Github", "Homepage", "https://github.com/BlockEase/QR-Hardware-Wallet", "https://github.com/BlockEase/QR-Hardware-Wallet");
         }
     }
     else if (code == LV_EVENT_VALUE_CHANGED)

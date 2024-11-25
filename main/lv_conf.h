@@ -17,8 +17,6 @@
 #ifndef LV_CONF_H
 #define LV_CONF_H
 
-#include "peripherals.h"
-
 /*If you need to include anything here, do it inside the `__ASSEMBLY__` guard */
 #if  0 && defined(__ASSEMBLY__)
 #include "my_include.h"
@@ -1033,26 +1031,11 @@
 
 /*Drivers for LCD devices connected via SPI/parallel port*/
  
-#define LV_USE_ST7735        0
+#define LV_USE_ST7735        1
 #define LV_USE_ST7789        0
-#define LV_USE_ST7796        0
-#define LV_USE_ILI9341       0
+#define LV_USE_ST7796        1
+#define LV_USE_ILI9341       1
 
-// #if CONFIG_LCD_ST7735
-// #define LV_USE_ST7735        1
-// #endif
-
-// #if CONFIG_LCD_ST7789
-// #define LV_USE_ST7789        1
-// #endif
-
-// #if CONFIG_LCD_ST7796
-// #define LV_USE_ST7796        1
-// #endif
-
-// #if CONFIG_LCD_ILI9341
-// #define LV_USE_ILI9341       1
-// #endif
 
 #define LV_USE_GENERIC_MIPI (LV_USE_ST7735 | LV_USE_ST7789 | LV_USE_ST7796 | LV_USE_ILI9341)
 
