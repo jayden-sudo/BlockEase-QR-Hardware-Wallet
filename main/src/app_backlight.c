@@ -2,7 +2,7 @@
  *      INCLUDES
  *********************/
 #include "app_backlight.h"
-#include "peripherals.h"
+#include "app_peripherals.h"
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -14,5 +14,6 @@ bool app_backlight_support(void);
  **********************/
 bool app_backlight_support(void)
 {
-    return CONFIG_LCD_GPIO_BL_PWM != 0;
+    peripherals_config_t *config = app_peripherals_read();
+    return config->lcd_module_config.gpio_bl_pwm != 0;
 }
