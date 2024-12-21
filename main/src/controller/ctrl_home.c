@@ -369,6 +369,7 @@ void ctrl_home_destroy(void)
     {
         vTaskDelay(pdMS_TO_TICKS(5));
     }
+    ctrl_sign_destroy();
     ui_home_destroy();
     if (wallet != NULL)
     {

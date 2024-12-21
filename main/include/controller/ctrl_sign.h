@@ -17,6 +17,7 @@ extern "C"
      * GLOBAL PROTOTYPES
      **********************/
     void ctrl_sign_init(Wallet wallet, qrcode_protocol_bc_ur_data_t *qrcode_protocol_bc_ur_data);
+    void ctrl_sign_destroy();
 
 #ifdef __cplusplus
 }
